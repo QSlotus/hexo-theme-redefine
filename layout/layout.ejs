@@ -7,5 +7,13 @@
 <% if (theme.plugins.aplayer.enable) { %>
     <%- partial('_plugins/aplayer') %>
 <% } %>
+<% if (theme.plugins.meting.enable) { %>
+    <%- partial('_plugins/meting_js_only') %>
+<% } %>
+<% if (theme.plugins.meting.global_sticky_enable) { %>
+    <%- partial('_plugins/meting') %>
+<% } %>
+<%- renderJS('js/heart.js') %>
+<%- renderJS('js/article-ai-summary.js') %>
 </body>
 </html>
