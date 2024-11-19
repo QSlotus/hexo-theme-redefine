@@ -176,4 +176,8 @@
 		<%- partial('pages/post/toc') %>
 	</div>
 	<% } %>
+	<script data-swup-reload-script type="text/javascript">
+		window.articleTitle = <%- JSON.stringify(page.title) %>;
+	        window.articleContent = <%- JSON.stringify(page.content.replace(/<[^>]+>/g, '').replace(/\n/g, ' ')) %>;
+	</script>
 </div>
