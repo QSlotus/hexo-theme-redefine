@@ -1,19 +1,21 @@
 <!DOCTYPE html>
 <html lang="<%= config.language %>">
-<%- partial('_partials/head') %>
+<%- partial('components/header/head') %>
+
 <body>
-<%- body %>
-<%- partial('_partials/scripts') %>
-<% if (theme.plugins.aplayer.enable) { %>
-    <%- partial('_plugins/aplayer') %>
-<% } %>
-<% if (theme.plugins.meting.enable) { %>
-    <%- partial('_plugins/meting_js_only') %>
-<% } %>
-<% if (theme.plugins.meting.global_sticky_enable) { %>
-    <%- partial('_plugins/meting') %>
-<% } %>
-<%- renderJS('js/heart.js') %>
-<%- renderJS('js/libs/article-ai-summary.js') %>
+	<%- body %>
+	<%- partial('components/scripts') %>
+	<% if (theme.plugins.aplayer.enable) { %>
+	<%- partial('components/plugins/aplayer') %>
+	<% } %>
+	<% if (theme.plugins.meting.enable) { %>
+		<%- partial('components/plugins/meting_js_only') %>
+	<% } %>
+	<% if (theme.plugins.meting.global_sticky_enable) { %>
+		<%- partial('components/plugins/meting') %>
+	<% } %>
+	<%- renderJS('js/heart.js') %>
+	<%- renderJS('js/libs/article-ai-summary.js') %>
 </body>
+
 </html>
