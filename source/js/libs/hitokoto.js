@@ -7,7 +7,8 @@ function loadHitokoto() {
         .then(data => {
             const hitokotoElement = document.getElementById('hitokoto');
             if (hitokotoElement && data.hitokoto) {
-                hitokotoElement.innerHTML = data.hitokoto + (data.from_who ? ' ——' + data.from_who : '');
+                // 使用『』括起一言的文字主体，不展示作者
+                hitokotoElement.innerHTML = `『${data.hitokoto}』`;
             }
         })
         .catch(error => console.error('Error fetching hitokoto:', error));
