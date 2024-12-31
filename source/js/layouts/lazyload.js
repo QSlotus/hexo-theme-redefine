@@ -1,5 +1,5 @@
 export default function initLazyLoad() {
-  const imgs = document.querySelectorAll("img");
+  const imgs = document.querySelectorAll("img:not([data-no-lazyload='true'])");
   const options = {
     rootMargin: "0px",
     threshold: 0.1,

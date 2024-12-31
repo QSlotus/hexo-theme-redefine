@@ -8,7 +8,12 @@ hexo.extend.filter.register(
       // Match 'img' tags width the src attribute.
       /<img([^>]*)src="([^"]*)"([^>\/]*)\/?\s*>/gim,
       function (match, attrBegin, src, attrEnd) {
-        // Exit if the src doesn't exists.
+        
+        // 如果图片有 data-no-lazyload="true" 属性，直接返回原标签
+        if (attrBegin.includes('data-no-lazyload="true"') || attrEnd.includes('data-no-lazyload="true"')) {
+          return match;
+        }
+    
         if (!src) return match;
 
         return `<img ${attrBegin}

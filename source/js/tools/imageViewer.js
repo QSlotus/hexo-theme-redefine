@@ -112,7 +112,7 @@ export default function imageViewer() {
   });
 
   const imgDoms = document.querySelectorAll(
-    ".markdown-body img, .masonry-item img, #shuoshuo-content img",
+    ".markdown-body img:not([data-no-preview='true']), .masonry-item img:not([data-no-preview='true']), #shuoshuo-content img:not([data-no-preview='true'])"
   );
 
   const escapeKeyListener = (event) => {
