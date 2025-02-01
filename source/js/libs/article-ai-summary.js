@@ -1,7 +1,5 @@
 // article-ai-summary.js
-let currentController = null;
-let currentStyle = 'prompt1';  // 默认风格
-let promptConfig = null;
+let currentController = null;  // 用于取消请求的控制器
 
 async function sha256(str) {
     const encoder = new TextEncoder();
@@ -14,52 +12,26 @@ async function sha256(str) {
     return hashHex;
 }
 
-async function initPromptButtons() {
-    try {
-        const response = await fetch('https://summary.qiusyan.top/prompt_config');
-        promptConfig = await response.json();
-        
-        const buttonContainer = document.querySelector('.style-buttons');
-        buttonContainer.innerHTML = Object.entries(promptConfig)
-        .map(([style, config]) => `
-            <button class="style-button ${style === currentStyle ? 'active' : ''} 
-                    flex items-center gap-1 px-2 py-1 rounded text-sm border border-border-color 
-                    hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" 
-                    data-style="${style}" onclick="generateAISummary('${style}')">
-                <i class="${config.icon}"></i>
-                <span>${config.name}</span>
-            </button>
-        `).join('');
-    } catch (error) {
-        console.error('Failed to load prompt config:', error);
-    }
-}
-
-async function generateAISummary(style = currentStyle) {
-    currentStyle = style;
+async function generateAISummary() {
     const outputContainer = document.getElementById("ai-output");
     if (!outputContainer) return;
 
+    // 取消之前的请求
     if (currentController) {
         currentController.abort();
     }
 
+    // 创建新的 AbortController
     currentController = new AbortController();
     const signal = currentController.signal;
 
+    // 检查必要数据
     if (typeof window.articleTitle === 'undefined' || typeof window.articleContent === 'undefined') {
         console.warn('Article data not yet available');
         return;
     }
 
-    // 更新按钮状态
-    document.querySelectorAll('.style-button').forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.dataset.style === style) {
-            btn.classList.add('active');
-        }
-    });
-
+    // 重置容器状态
     outputContainer.innerHTML = `
         <div class="flex items-center gap-2">
             正在生成中...
@@ -83,7 +55,7 @@ async function generateAISummary(style = currentStyle) {
 
         if (status === "yes") {
             const summaryResponse = await fetch(
-                `https://summary.qiusyan.top/get_summary?id=${currentPath}&sign=${encodeURIComponent(contentHash)}&style=${style}`,
+                `https://summary.qiusyan.top/get_summary?id=${currentPath}&sign=${encodeURIComponent(contentHash)}`,
                 { signal }
             );
             if (signal.aborted) return;
@@ -101,14 +73,12 @@ async function generateAISummary(style = currentStyle) {
             if (signal.aborted) return;
 
             // 初始化 SSE
-            const evSource = new EventSource(
-                `https://summary.qiusyan.top/summary?id=${currentPath}&style=${style}`
-            );
-            
+            const evSource = new EventSource(`https://summary.qiusyan.top/summary?id=${currentPath}`);
             if (outputContainer) {
                 outputContainer.textContent = "";
             }
 
+            // 在 signal 被中止时关闭 EventSource
             signal.addEventListener('abort', () => {
                 evSource.close();
             });
@@ -140,7 +110,7 @@ async function generateAISummary(style = currentStyle) {
 
             // 触发摘要生成
             fetch(
-                `https://summary.qiusyan.top/get_summary?id=${currentPath}&sign=${encodeURIComponent(contentHash)}&style=${style}`,
+                `https://summary.qiusyan.top/get_summary?id=${currentPath}&sign=${encodeURIComponent(contentHash)}`,
                 { signal }
             );
         }
@@ -155,18 +125,18 @@ async function generateAISummary(style = currentStyle) {
     }
 }
 
+// 初始化 AI 摘要的函数
 function initAISummary() {
     const aiOutput = document.getElementById('ai-output');
     if (!aiOutput) return;
 
-    // 初始化提示词按钮
-    initPromptButtons();
-
+    // 如果文章数据可用，立即生成摘要
     if (typeof window.articleTitle !== 'undefined' && typeof window.articleContent !== 'undefined') {
         generateAISummary();
         return;
     }
 
+    // 如果不可用，重试几次
     let retryCount = 0;
     const maxRetries = 5;
     const retryInterval = setInterval(() => {
